@@ -51,7 +51,7 @@ class DoctorOPDSetuo extends StatelessWidget {
 }
 
 _leftPart(DoctorOPDsetupController econtroller) {
-  return AccordionContainer( 
+  return CustomAccordionContainer( 
     height: 200,
     headerName: "Doctor Information", children:[
 
@@ -226,7 +226,7 @@ _leftPart(DoctorOPDsetupController econtroller) {
 }
 
 _rightPart(DoctorOPDsetupController econtroller) {
-  return  AccordionContainer(
+  return  CustomAccordionContainer(
    
     headerName: "Fees Information",
    children: [
@@ -517,7 +517,7 @@ _desktop(DoctorOPDsetupController econtroller) {
 
 
         Expanded(
-          child: AccordionContainer(
+          child: CustomAccordionContainer(
             height: 0,
              headerName: "Doctor List",
             children:  [

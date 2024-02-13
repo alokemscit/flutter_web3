@@ -412,8 +412,8 @@ class ModuleMenuBloc extends Bloc<ModuleMenuEvent, ModuleMenuState> {
         getStatus(
             x,
             () => emit(ModuleMenuErrorState(msg: "No data Saved")),
-            (v) => ModuleMenuErrorState(msg: v),
-            (v) => emit(ModuleMenuSuccessState(msg: v)));
+            (v,i) => ModuleMenuErrorState(msg: v),
+            (v,i) => emit(ModuleMenuSuccessState(msg: v)));
       } on Exception catch (e) {
         // print(e.toString());
         ModuleMenuErrorState(msg: e.toString());
@@ -424,8 +424,8 @@ class ModuleMenuBloc extends Bloc<ModuleMenuEvent, ModuleMenuState> {
   }
 }
 
-void getStatus(List<dynamic> x, Function() empty, Function(String msg) error,
-    Function(String msg) success) {
+void getStatus(List<dynamic> x, Function() empty, Function(String msg,String id) error,
+    Function(String msg,String id) success) {
   List<ModelStatus> lst = x
       .map(
         (e) => ModelStatus.fromJson(e),
@@ -437,10 +437,10 @@ void getStatus(List<dynamic> x, Function() empty, Function(String msg) error,
   } else {
     var a = lst.first.status.toString();
     if (a != "1") {
-      error(lst.first.msg.toString());
+      error(lst.first.msg.toString(),lst.first.id.toString());
       //emit(ModuleMenuErrorState(msg: m));
     } else {
-      success(lst.first.msg.toString());
+      success(lst.first.msg.toString(),lst.first.id.toString());
       //emit(ModuleMenuSuccessState(msg: m));
     }
   }

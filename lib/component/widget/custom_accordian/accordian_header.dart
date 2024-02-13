@@ -1,10 +1,12 @@
+// ignore_for_file: camel_case_types
+
 import 'package:flutter/material.dart';
  
 import 'package:web_2/component/settings/config.dart';
 import 'package:web_2/component/settings/functions.dart';
 
-class CustomCaptionForForAccordian extends StatefulWidget {
-  CustomCaptionForForAccordian({
+class _customAccordianCaption extends StatefulWidget {
+  _customAccordianCaption({
     super.key,
     required this.text,
     this.backgroundColor = kWebHeaderColor,
@@ -19,12 +21,12 @@ class CustomCaptionForForAccordian extends StatefulWidget {
   final void Function(bool) onTap;
 
   @override
-  State<CustomCaptionForForAccordian> createState() =>
-      _CustomCaptionForForAccordianState();
+  State<_customAccordianCaption> createState() =>
+      __customAccordianCaptionState();
 }
 
-class _CustomCaptionForForAccordianState
-    extends State<CustomCaptionForForAccordian> {
+class __customAccordianCaptionState
+    extends State<_customAccordianCaption> {
   bool isOpen = false;
   @override
   Widget build(BuildContext context) {
@@ -91,8 +93,8 @@ class _CustomCaptionForForAccordianState
   }
 }
 
-class AccordionContainer extends StatefulWidget {
-  const AccordionContainer(
+class CustomAccordionContainer extends StatefulWidget {
+  const CustomAccordionContainer(
       {super.key,
       required this.headerName,
       required this.children,
@@ -102,10 +104,10 @@ class AccordionContainer extends StatefulWidget {
   final double height;
 
   @override
-  State<AccordionContainer> createState() => _AccordionContainerState();
+  State<CustomAccordionContainer> createState() => _CustomAccordionContainerState();
 }
 
-class _AccordionContainerState extends State<AccordionContainer> {
+class _CustomAccordionContainerState extends State<CustomAccordionContainer> {
   bool b = false;
 
   @override
@@ -114,7 +116,7 @@ class _AccordionContainerState extends State<AccordionContainer> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomCaptionForForAccordian(
+          _customAccordianCaption(
             text: widget.headerName,
             onTap: (a) {
               setState(() {
@@ -163,7 +165,7 @@ class _AccordionContainerState extends State<AccordionContainer> {
 //         mainAxisAlignment: MainAxisAlignment.start,
 //         crossAxisAlignment: CrossAxisAlignment.start,
 //         children: [
-//            CustomCaptionForForAccordian(text: headerName,),
+//            _customAccordianCaption(text: headerName,),
         
 //         height>0?  Container(
 //               decoration: CustomCaptionDecoration().copyWith(

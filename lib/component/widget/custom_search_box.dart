@@ -81,7 +81,7 @@ class CustomSearchBox extends StatelessWidget {
         height: height,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadious),
-            color: Colors.white,
+            color:   Colors.white,
             boxShadow: [
               BoxShadow(blurRadius: 0, spreadRadius: 0.01, color: borderColor)
             ]),
