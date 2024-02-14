@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:web_2/modules/Inventory/pages/attribute_setup_page/inventory_attribute_setup.dart';
+import 'package:web_2/modules/Inventory/pages/warehouse_setup/warehouse_inv_setup.dart';
 import 'package:web_2/modules/admin/module_page/model/module_model.dart';
 import 'package:web_2/modules/hrm/department_setup/department_setup_page.dart';
 import 'package:web_2/modules/hrm/employee_master_page/employee_master.dart';
@@ -61,6 +62,8 @@ Widget getPage( String id) {
       return const AttributesSetupHRM();
       case "106":
       return const InvAttributeSetup();
+      case "107":
+      return const WareHouseSetup();
       case "":
       return const SizedBox(
         //child: Text("Under Construction!"),

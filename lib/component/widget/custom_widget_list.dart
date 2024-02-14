@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:web_2/component/settings/config.dart';
 import 'package:web_2/component/settings/functions.dart';
 import 'package:web_2/component/settings/responsive.dart';
-import 'package:web_2/component/widget/custom_accordian/accordian_header.dart';
+ 
  
 
 height([double height = 8]) => SizedBox(

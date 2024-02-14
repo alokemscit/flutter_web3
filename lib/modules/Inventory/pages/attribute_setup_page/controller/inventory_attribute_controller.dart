@@ -1,7 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
 
-import 'dart:js_util';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:web_2/component/awesom_dialog/awesome_dialog.dart';
@@ -12,6 +10,7 @@ import 'package:web_2/data/data_api.dart';
 
 import 'package:web_2/model/model_user.dart';
 import 'package:web_2/modules/Inventory/pages/attribute_setup_page/model/model_inv_item_group_master.dart';
+import 'package:web_2/modules/Inventory/pages/attribute_setup_page/model/model_inv_item_sub_group_master.dart';
 import 'package:web_2/modules/admin/module_page/form_page.dart';
 import 'package:web_2/modules/hrm/department_setup/model/model_status_master.dart';
 import 'package:web_2/modules/hrm/setup_attributes/model/model_hr_common_master.dart';
@@ -34,6 +33,7 @@ class InvmsAttributeController extends GetxController {
 
   var cmb_StoreTypeId = ''.obs;
   var cmb_StoreTypeId2 = ''.obs;
+  var cmb_StoreTypeId3 = ''.obs;
   var cmb_StoreTypeStatusId = ''.obs;
   var editStoreTypeID = ''.obs;
 
@@ -52,7 +52,8 @@ class InvmsAttributeController extends GetxController {
   var groupList = <ModelItemGroupMaster>[].obs;
   var groupList_temp = <ModelItemGroupMaster>[].obs;
 
-   
+  var subGroupList = <ModelItemSubGroupMaster>[].obs;
+  var subGroupList_temp = <ModelItemSubGroupMaster>[].obs;
 
   InvmsAttributeController({required this.context});
 
@@ -61,13 +62,6 @@ class InvmsAttributeController extends GetxController {
     storeTypeList_temp.addAll(storeTypeList.where((p0) => p0.name!
         .toUpperCase()
         .contains(txt_StoreTypeSearch.text.toUpperCase())));
-    // var ss = storeTypeList
-    //     .where((p0) => p0.name!
-    //         .toUpperCase()
-    //         .contains(txt_StoreTypeSearch.text.toUpperCase()))
-    //     .toList();
-    // storeTypeList_temp.clear();
-    // storeTypeList_temp.addAll(ss);
   }
 
   void saveStoreType() async {
@@ -150,12 +144,22 @@ class InvmsAttributeController extends GetxController {
       // ..onTap = () => print("Ok");
       return;
     }
+    if (cmb_GroupStatusId.value == '') {
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please status"
+        ..show();
+      // ..onTap = () => print("Ok");
+      return;
+    }
+
     try {
       customBusyDialog(context);
       var x = await api.createLead([
         {
           "tag": "29",
           "cid": user.value.cid,
+          "stid": cmb_StoreTypeId2.value,
           "id": editGroupId.value,
           "name": txt_Group.text,
           "status": cmb_GroupStatusId.value
@@ -174,12 +178,29 @@ class InvmsAttributeController extends GetxController {
           ..show();
       }, (msg, id) {
         groupList.removeWhere((element) => element.id == id);
+        groupList_temp.removeWhere((element) => element.id == id);
+        ModelItemGroupMaster item = ModelItemGroupMaster(
+            id: id,
+            name: txt_Group.text,
+            status: cmb_GroupStatusId.value,
+            storeTypeId: cmb_StoreTypeId2.value,
+            storeTypeName: storeTypeList
+                .where((p0) => p0.id == cmb_StoreTypeId2.value)
+                .first
+                .name);
+        groupList.add(item);
+        groupList_temp.add(item);
+
         // groupList.add(ModelCommonMaster(
         //     id: id, name: txt_Group.text, status: cmb_GroupStatusId.value));
         dialog
           ..dialogType = DialogType.success
           ..message = msg
           ..show();
+
+        editGroupId.value = '';
+        txt_Group.text = '';
+        cmb_GroupStatusId.value = '1';
       });
     } catch (e) {
       dialog
@@ -187,6 +208,92 @@ class InvmsAttributeController extends GetxController {
         ..message = e.toString()
         ..show();
       Navigator.pop(context);
+    }
+  }
+
+  void saveSubGroup() async {
+    if (cmb_StoreTypeId3.value == '') {
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select store type!"
+        ..show();
+      return;
+    }
+    if (cmb_GroupId2.value == '') {
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select group!"
+        ..show();
+      return;
+    }
+    if (cmb_SubGroupStatusId.value == '') {
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please status!"
+        ..show();
+      return;
+    }
+
+    try {
+      customBusyDialog(context);
+
+      //@cid,@stid,@grid, @id,@name,@status
+      api.createLead([
+        {
+          "tag": "33",
+          "cid": user.value.cid,
+          "stid": cmb_StoreTypeId3.value,
+          "grid": cmb_GroupId2.value,
+          "id": editSubGroupID.value,
+          "name": txt_SubGroup.text,
+          "status": cmb_SubGroupStatusId.value
+        }
+      ]).then((x) {
+        Navigator.pop(context);
+        getStatus(
+            x,
+            () => dialog
+              ..dialogType = DialogType.error
+              ..message = "Faillure"
+              ..show(),
+            (msg, id) => dialog
+              ..dialogType = DialogType.error
+              ..message = msg
+              ..show(), (msg, id) {
+          dialog
+            ..dialogType = DialogType.success
+            ..message = msg
+            ..show();
+
+          subGroupList.removeWhere((element) => element.id == id);
+          subGroupList.add(ModelItemSubGroupMaster(
+            groupId: cmb_GroupId2.value,
+            groupName:
+                groupList.where((p0) => p0.id == cmb_GroupId2.value).first.name,
+            id: id,
+            name: txt_SubGroup.text,
+            status: cmb_SubGroupStatusId.value,
+            storeTypeId: cmb_StoreTypeId3.value,
+            storeTypeName: storeTypeList
+                .where((p0) => p0.id == cmb_StoreTypeId3.value)
+                .first
+                .name,
+          ));
+          subGroupList_temp.clear();
+          subGroupList_temp.addAll(subGroupList);
+          editSubGroupID.value = '';
+         // cmb_GroupId2.value = '';
+          txt_SubGroup.text = '';
+          cmb_SubGroupStatusId.value = '1';
+          //cmb_StoreTypeId3.value = '';
+        });
+      });
+    } catch (e) {
+      Navigator.pop(context);
+      dialog
+        ..dialogType = DialogType.error
+        ..message = e.toString()
+        ..show();
     }
   }
 
@@ -215,13 +322,20 @@ class InvmsAttributeController extends GetxController {
           .addAll(x.map((e) => ModelCommonMaster.fromJson(e)).toList());
       storeTypeList_temp.addAll(storeTypeList);
 
- x = await api.createLead([
+      x = await api.createLead([
         {"tag": "28", "cid": user.value.cid}
       ]);
       //print(x);
-      groupList
-          .addAll(x.map((e) => ModelItemGroupMaster.fromJson(e)).toList());
+      groupList.addAll(x.map((e) => ModelItemGroupMaster.fromJson(e)).toList());
       groupList_temp.addAll(groupList);
+
+      api.createLead([
+        {"tag": "32", "cid": user.value.cid}
+      ]).then((x) {
+        subGroupList
+            .addAll(x.map((e) => ModelItemSubGroupMaster.fromJson(e)).toList());
+        subGroupList_temp.addAll(subGroupList);
+      });
 
       isLoading.value = false;
     } catch (e) {

@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, unused_element
 
 import 'package:flutter/material.dart';
+ 
 import 'package:get/get.dart';
 import 'package:web_2/component/settings/config.dart';
 
@@ -34,21 +35,23 @@ class InvAttributeSetup extends StatelessWidget {
             controller.isError.value,
             controller.errorMessage.value,
             _mobile(controller),
-            _tablet(controller),
+            _desktop(controller),
             _desktop(controller)),
       ),
     );
   }
 }
 
-// ignore: non_constant_identifier_names
+ 
 
 _mobile(InvmsAttributeController controller) => SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _StoreTypePart(controller),
+            height(),
             _groupPart(controller),
             height(),
             _subGroupPart(controller)
@@ -57,9 +60,9 @@ _mobile(InvmsAttributeController controller) => SingleChildScrollView(
       ),
     );
 
-_tablet(InvmsAttributeController controller) => Container();
+
 _desktop(InvmsAttributeController controller) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -76,9 +79,7 @@ _desktop(InvmsAttributeController controller) => Padding(
                 flex: 5,
                 child: _groupPart(controller),
               ),
-              const SizedBox(
-                width: 8,
-              ),
+              
             ],
           ),
           height(),
@@ -316,9 +317,10 @@ _groupTablePart(InvmsAttributeController controller) => Expanded(
               child: SingleChildScrollView(
                 child: Table(
                   columnWidths: const {
-                    0: FlexColumnWidth(130),
-                    1: FlexColumnWidth(80),
-                    2: FlexColumnWidth(30),
+                    0: FlexColumnWidth(110),
+                    1: FlexColumnWidth(130),
+                    2: FlexColumnWidth(80),
+                    3: FlexColumnWidth(30),
                   },
                   children: [
                     TableRow(
@@ -326,24 +328,50 @@ _groupTablePart(InvmsAttributeController controller) => Expanded(
                         color: kBgDarkColor,
                       ),
                       children: [
-                        CustomTableCell("Name"),
+                        CustomTableCell("Stre Type"),
+                        CustomTableCell("Group Name"),
                         CustomTableCell("Status"),
                         CustomTableCell("Action"),
                       ],
                     ),
                     for (var i = 0; i < controller.groupList.length; i++)
                       TableRow(
-                          decoration: BoxDecoration(color: Colors.white),
+                          decoration: BoxDecoration(
+                              color: controller.editGroupId.value ==
+                                      controller.groupList[i].id
+                                  ? Colors.amber.withOpacity(0.3)
+                                  : Colors.white),
                           children: [
+                            CustomTableCell(
+                                controller.groupList[i].storeTypeName!),
                             CustomTableCell(controller.groupList[i].name!),
                             CustomTableCell(
                                 controller.groupList[i].status == '1'
                                     ? "Active"
                                     : "Inactive"),
-                            const TableCell(
+                            TableCell(
                                 verticalAlignment:
                                     TableCellVerticalAlignment.middle,
-                                child: Icon(Icons.edit)),
+                                child: InkWell(
+                                  onTap: () {
+                                    controller.editGroupId.value =
+                                        controller.groupList[i].id!;
+                                    controller.cmb_StoreTypeId2.value =
+                                        controller.groupList[i].storeTypeId!;
+                                    controller.txt_Group.text =
+                                        controller.groupList[i].name!;
+                                    controller.cmb_GroupStatusId.value =
+                                        controller.groupList[i].status!;
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: kWebHeaderColor,
+                                      size: 12,
+                                    ),
+                                  ),
+                                )),
                           ])
                   ],
                   border: CustomTableBorder(),
@@ -355,6 +383,11 @@ _groupTablePart(InvmsAttributeController controller) => Expanded(
       ),
     );
 
+_subGroupPart(InvmsAttributeController controller) =>
+    CustomAccordionContainer(headerName: "Item Sub Group", children: [
+      _subGroupEnryPart(controller),
+      _subGroupTablePart(controller),
+    ]);
 _subGroupEnryPart(InvmsAttributeController controller) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: customBoxDecoration,
@@ -363,14 +396,32 @@ _subGroupEnryPart(InvmsAttributeController controller) => Container(
           Expanded(
             flex: 3,
             child: CustomDropDown(
-              id: controller.cmb_GroupId2.value,
-              labeltext: "Item Group",
-              list: controller.statusList
+              id: controller.cmb_StoreTypeId3.value,
+              labeltext: "Store Type",
+              list: controller.storeTypeList
                   .map((element) => DropdownMenuItem<String>(
                       value: element.id, child: Text(element.name!)))
                   .toList(),
               onTap: (v) {
-                controller.cmb_GroupId.value = v.toString();
+                controller.cmb_GroupId2.value = '';
+                controller.cmb_StoreTypeId3.value = v.toString();
+              },
+            ),
+          ),
+          width(),
+          Expanded(
+            flex: 3,
+            child: CustomDropDown(
+              id: controller.cmb_GroupId2.value,
+              labeltext: "Item Group",
+              list: controller.groupList
+                  .where((p0) =>
+                      p0.storeTypeId == controller.cmb_StoreTypeId3.value)
+                  .map((element) => DropdownMenuItem<String>(
+                      value: element.id, child: Text(element.name!)))
+                  .toList(),
+              onTap: (v) {
+                controller.cmb_GroupId2.value = v.toString();
               },
             ),
           ),
@@ -385,36 +436,131 @@ _subGroupEnryPart(InvmsAttributeController controller) => Container(
           ),
           width(),
           CustomDropDown(
-              id: controller.cmb_SubGroupId.value,
+              id: controller.cmb_SubGroupStatusId.value,
               labeltext: "Status",
               list: controller.statusList
                   .map((element) => DropdownMenuItem<String>(
                       value: element.id, child: Text(element.name!)))
                   .toList(),
               onTap: (v) {
-                controller.cmb_SubGroupId.value = v.toString();
+                controller.cmb_SubGroupStatusId.value = v.toString();
               },
               width: 90),
           width(),
           roundedButton(() async {
             // print("object");
 
-            //await controller.saveUpdateCategory();
+            controller.saveSubGroup();
           },
               controller.editSubGroupID.value == ''
                   ? Icons.save_as_sharp
                   : Icons.edit),
           width(),
           roundedButton(() {
-            controller.editGroupId.value = '';
+            controller.editSubGroupID.value = '';
             controller.txt_SubGroup.text = '';
-            controller.cmb_GroupStatusId.value = "1";
+            controller.cmb_SubGroupStatusId.value = "1";
+
+            controller.cmb_GroupId2.value = '';
+            controller.cmb_StoreTypeId3.value = '';
           }, Icons.undo_sharp)
         ],
       ),
     );
 
-_subGroupPart(InvmsAttributeController controller) =>
-    CustomAccordionContainer(headerName: "Item Sub Group", children: [
-      _subGroupEnryPart(controller),
-    ]);
+_subGroupTablePart(InvmsAttributeController controller) => Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: CustomSearchBox(
+                      caption: "Search Sub Group",
+                      controller: TextEditingController(),
+                      onChange: (v) {}),
+                ),
+              ],
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(110),
+                    1: FlexColumnWidth(120),
+                    2: FlexColumnWidth(130),
+                    3: FlexColumnWidth(80),
+                    4: FlexColumnWidth(30),
+                  },
+                  children: [
+                    TableRow(
+                      decoration: const BoxDecoration(
+                        color: kBgDarkColor,
+                      ),
+                      children: [
+                        CustomTableCell("Stre Type"),
+                        CustomTableCell("Group Name"),
+                        CustomTableCell("Sub Group Name"),
+                        CustomTableCell("Status"),
+                        CustomTableCell("Edit"),
+                      ],
+                    ),
+                    for (var i = 0;
+                        i < controller.subGroupList_temp.length;
+                        i++)
+                      TableRow(
+                          decoration: BoxDecoration(
+                              color: controller.editSubGroupID.value ==
+                                      controller.subGroupList_temp[i].id
+                                  ? Colors.amber.withOpacity(0.3)
+                                  : Colors.white),
+                          children: [
+                            CustomTableCell(
+                                controller.subGroupList_temp[i].storeTypeName!),
+                            CustomTableCell(
+                                controller.subGroupList_temp[i].groupName!),
+                            CustomTableCell(
+                                controller.subGroupList_temp[i].name!),
+                            CustomTableCell(
+                                controller.subGroupList_temp[i].status == '1'
+                                    ? "Active"
+                                    : "Inactive"),
+                            TableCell(
+                                verticalAlignment:
+                                    TableCellVerticalAlignment.middle,
+                                child: InkWell(
+                                  onTap: () {
+                                    controller.editSubGroupID.value =
+                                        controller.subGroupList_temp[i].id!;
+                                    controller.cmb_StoreTypeId3.value =
+                                        controller
+                                            .subGroupList_temp[i].storeTypeId!;
+
+                                    controller.cmb_GroupId2.value = controller
+                                        .subGroupList_temp[i].groupId!;
+
+                                    controller.txt_SubGroup.text =
+                                        controller.subGroupList_temp[i].name!;
+                                    controller.cmb_SubGroupStatusId.value =
+                                        controller.subGroupList_temp[i].status!;
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: kWebHeaderColor,
+                                      size: 12,
+                                    ),
+                                  ),
+                                )),
+                          ])
+                  ],
+                  border: CustomTableBorder(),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );

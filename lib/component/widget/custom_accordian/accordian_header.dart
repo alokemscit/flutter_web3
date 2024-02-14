@@ -1,7 +1,7 @@
 // ignore_for_file: camel_case_types
 
 import 'package:flutter/material.dart';
- 
+
 import 'package:web_2/component/settings/config.dart';
 import 'package:web_2/component/settings/functions.dart';
 
@@ -12,12 +12,13 @@ class _customAccordianCaption extends StatefulWidget {
     this.backgroundColor = kWebHeaderColor,
     this.boxShadoColor = Colors.black38,
     this.textColor = Colors.black,
-    void Function(bool)? onTap,
+    void Function(bool)? onTap,  this.isisExpansion=true,
   }) : onTap = onTap ?? ((bool b) {});
   final String text;
   final Color backgroundColor;
   final Color boxShadoColor;
   final Color textColor;
+  final bool isisExpansion;
   final void Function(bool) onTap;
 
   @override
@@ -25,8 +26,7 @@ class _customAccordianCaption extends StatefulWidget {
       __customAccordianCaptionState();
 }
 
-class __customAccordianCaptionState
-    extends State<_customAccordianCaption> {
+class __customAccordianCaptionState extends State<_customAccordianCaption> {
   bool isOpen = false;
   @override
   Widget build(BuildContext context) {
@@ -44,14 +44,17 @@ class __customAccordianCaptionState
         ],
       ),
       width: double.infinity,
-      child: InkWell(
-         onTap: () {
-                widget.onTap(!isOpen);
-                // controller.isOpen.value = !controller.isOpen.value;
-                setState(() {
-                  isOpen = !isOpen;
-                });
-              },
+      child: widget.isisExpansion?
+      
+      
+      InkWell(
+        onTap: () {
+          widget.onTap(!isOpen);
+          // controller.isOpen.value = !controller.isOpen.value;
+          setState(() {
+            isOpen = !isOpen;
+          });
+        },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -88,7 +91,42 @@ class __customAccordianCaptionState
             )
           ],
         ),
-      ),
+      ):Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 6, bottom: 8, top: 2),
+              child: Text(
+                widget.text,
+                style: customTextStyle.copyWith(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    decoration: TextDecoration.underline,
+                    decorationColor: widget.textColor,
+                    color: widget.textColor),
+              ),
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(right: 8),
+            //   child: InkWell(
+            //     onTap: () {
+            //       widget.onTap(!isOpen);
+            //       // controller.isOpen.value = !controller.isOpen.value;
+            //       setState(() {
+            //         isOpen = !isOpen;
+            //       });
+            //     },
+            //     child: Icon(
+            //       isOpen
+            //           ? Icons.keyboard_arrow_down_sharp
+            //           : Icons.keyboard_arrow_up_sharp,
+            //       color: widget.textColor,
+            //       size: 24,
+            //     ),
+            //   ),
+            // )
+          ],
+        ),
     );
   }
 }
@@ -98,13 +136,16 @@ class CustomAccordionContainer extends StatefulWidget {
       {super.key,
       required this.headerName,
       required this.children,
-      this.height = 350});
+      this.height = 350,
+      this.isExpansion = true});
   final String headerName;
   final List<Widget> children;
   final double height;
+  final bool isExpansion;
 
   @override
-  State<CustomAccordionContainer> createState() => _CustomAccordionContainerState();
+  State<CustomAccordionContainer> createState() =>
+      _CustomAccordionContainerState();
 }
 
 class _CustomAccordionContainerState extends State<CustomAccordionContainer> {
@@ -117,6 +158,7 @@ class _CustomAccordionContainerState extends State<CustomAccordionContainer> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _customAccordianCaption(
+            isisExpansion: widget.isExpansion,
             text: widget.headerName,
             onTap: (a) {
               setState(() {
@@ -124,7 +166,7 @@ class _CustomAccordionContainerState extends State<CustomAccordionContainer> {
               });
             },
           ),
-          widget.height > 0 
+          widget.height > 0
               ? Container(
                   decoration: CustomCaptionDecoration().copyWith(
                     borderRadius: const BorderRadius.only(
@@ -132,27 +174,29 @@ class _CustomAccordionContainerState extends State<CustomAccordionContainer> {
                         bottomRight: Radius.circular(4)),
                     color: kWebBackgroundDeepColor,
                   ),
-                  height: b?0:widget.height,
+                  height: b ? 0 : widget.height,
                   child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
-                        children:  widget.children,
+                        children: widget.children,
                       )))
-              : b?const SizedBox(): Expanded(
-                  child: Container(
-                      decoration: CustomCaptionDecoration().copyWith(
-                        borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(4),
-                            bottomRight: Radius.circular(4)),
-                        color: kWebBackgroundDeepColor,
-                      ),
-                      //height: height,
-                      child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: widget.children,
-                          ))),
-                )
+              : b
+                  ? const SizedBox()
+                  : Expanded(
+                      child: Container(
+                          decoration: CustomCaptionDecoration().copyWith(
+                            borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(4),
+                                bottomRight: Radius.circular(4)),
+                            color: kWebBackgroundDeepColor,
+                          ),
+                          //height: height,
+                          child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: widget.children,
+                              ))),
+                    )
         ]);
   }
 }
