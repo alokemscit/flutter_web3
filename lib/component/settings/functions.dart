@@ -350,8 +350,7 @@ Future<void> customBusyDialog(BuildContext context) async {
     barrierColor: Colors.black.withOpacity(0.2),
     barrierDismissible: false,
     builder: (BuildContext context) {
-      // Return your custom dialog content
-      return Center(
+     return Center(
         child: CupertinoPopupSurface(
           child: Container(
             height: 50,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:web_2/component/awesom_dialog/awesome_dialog.dart';
 import 'package:web_2/component/settings/config.dart';
 import 'package:web_2/component/widget/circular.dart';
+import 'package:web_2/component/widget/custom_awesomeDialog.dart';
 import 'package:web_2/component/widget/custom_snakbar.dart';
 import 'package:web_2/component/widget/custom_textbox.dart';
 
@@ -71,12 +74,12 @@ Widget _futurebulder() {
             ),
           );
         } else {
-          return  Center(
+          return Center(
             child: Circular(),
           );
         }
       } else {
-        return  Center(
+        return Center(
           child: Circular(),
         );
       }
@@ -412,8 +415,8 @@ class ModuleMenuBloc extends Bloc<ModuleMenuEvent, ModuleMenuState> {
         getStatus(
             x,
             () => emit(ModuleMenuErrorState(msg: "No data Saved")),
-            (v,i) => ModuleMenuErrorState(msg: v),
-            (v,i) => emit(ModuleMenuSuccessState(msg: v)));
+            (v, i) => ModuleMenuErrorState(msg: v),
+            (v, i) => emit(ModuleMenuSuccessState(msg: v)));
       } on Exception catch (e) {
         // print(e.toString());
         ModuleMenuErrorState(msg: e.toString());
@@ -424,8 +427,11 @@ class ModuleMenuBloc extends Bloc<ModuleMenuEvent, ModuleMenuState> {
   }
 }
 
-void getStatus(List<dynamic> x, Function() empty, Function(String msg,String id) error,
-    Function(String msg,String id) success) {
+void getStatus(
+    List<dynamic> x,
+    Function() empty,
+    Function(String msg, String id) error,
+    Function(String msg, String id) success) {
   List<ModelStatus> lst = x
       .map(
         (e) => ModelStatus.fromJson(e),
@@ -437,11 +443,42 @@ void getStatus(List<dynamic> x, Function() empty, Function(String msg,String id)
   } else {
     var a = lst.first.status.toString();
     if (a != "1") {
-      error(lst.first.msg.toString(),lst.first.id.toString());
+      error(lst.first.msg.toString(), lst.first.id.toString());
       //emit(ModuleMenuErrorState(msg: m));
     } else {
-      success(lst.first.msg.toString(),lst.first.id.toString());
+      success(lst.first.msg.toString(), lst.first.id.toString());
       //emit(ModuleMenuSuccessState(msg: m));
     }
   }
+}
+
+Future<ModelStatus> getStatusWithDialog(
+  List<dynamic> jsonData,
+  CustomAwesomeDialog dialog,
+) async {
+  if (jsonData.isEmpty) {
+    dialog
+      ..dialogType = DialogType.error
+      ..message = "Server error!"
+      ..show();
+    return ModelStatus(id: "", msg: "Server error",status: "4");
+  }
+  DialogType dt;
+  String msg = '';
+  ModelStatus list = jsonData
+      .map(
+        (e) => ModelStatus.fromJson(e),
+      )
+      .first;
+
+  dt = DialogType.success;
+  if (list.status != "1") {
+    dt = DialogType.warning;
+  }
+  msg = list.msg!;
+  dialog
+    ..dialogType = dt
+    ..message = msg
+    ..show();
+  return list;
 }

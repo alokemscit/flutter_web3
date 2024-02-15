@@ -2,16 +2,13 @@
 
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
- 
 import 'package:web_2/component/settings/config.dart';
 import 'package:web_2/component/settings/functions.dart';
-import 'package:web_2/component/settings/responsive.dart';
+
 import 'package:web_2/component/widget/custom_container.dart';
 import 'package:web_2/component/widget/custom_datepicker.dart';
 import 'package:web_2/component/widget/custom_dropdown.dart';
@@ -40,30 +37,20 @@ class EmployeeMaster extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final EmployeeController econtroller = Get.put(EmployeeController());
-    econtroller.context = context;
+    final EmployeeController econtroller =
+        Get.put(EmployeeController(context: context));
+    // econtroller.context = context;
     return BlocProvider(
       create: (context) => EmployeeBloc(),
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Obx(() {
-          if (econtroller.isLoading.value) {
-            return const Center(child: CupertinoActivityIndicator());
-          }
-          if (econtroller.isError.value) {
-            return Text(
-              econtroller.errorMessage.value.toString(),
-              style: const TextStyle(color: Colors.red),
-            );
-          }
-          // list = econtroller.elist;
-          // print(list);
-          return Responsive(
-            mobile: _mobile(context, econtroller),
-            tablet: _desktopTab(context, econtroller),
-            desktop: _desktopTab(context, econtroller),
-          );
-        }),
+        body: Obx(() => CustomCommonBody(
+            econtroller.isLoading.value,
+            econtroller.isError.value,
+            econtroller.errorMessage.value,
+            _mobile(context, econtroller),
+            _desktopTab(context, econtroller),
+            _desktopTab(context, econtroller))),
       ),
     );
   }
@@ -626,22 +613,24 @@ _leftPart(EmployeeController econtroller, BuildContext context) {
       children: [
         Row(
           children: [
-           !econtroller.isDisableID.value?  CustomTextBox(
-              focusNode: econtroller.f_emp_id,
-              labelTextColor: Colors.black54,
-              isDisable: econtroller.isDisableID.value, // true,
-              isReadonly: econtroller.isDisableID.value,
-              caption: "ID",
-              width: 100,
-              maxlength: 10,
-              height: 28,
-              isFilled: true,
-              controller: econtroller.txt_emp_id,
-              onChange: (v) {},
-              onSubmitted: (p0) {
-                //print("p0.characters");
-              },
-            ):SizedBox(),
+            !econtroller.isDisableID.value
+                ? CustomTextBox(
+                    focusNode: econtroller.f_emp_id,
+                    labelTextColor: Colors.black54,
+                    isDisable: econtroller.isDisableID.value, // true,
+                    isReadonly: econtroller.isDisableID.value,
+                    caption: "ID",
+                    width: 110,
+                    maxlength: 10,
+                    height: 28,
+                    isFilled: true,
+                    controller: econtroller.txt_emp_id,
+                    onChange: (v) {},
+                    onSubmitted: (p0) {
+                      //print("p0.characters");
+                    },
+                  )
+                : const SizedBox(),
             InkWell(
               onTap: () {
                 econtroller.EditEmployee();
@@ -657,6 +646,22 @@ _leftPart(EmployeeController econtroller, BuildContext context) {
                 ),
               ),
             ),
+            width(4),
+            !econtroller.isDisableID.value
+                ? InkWell(
+                    onTap: () {
+                      econtroller.advabceSearch();
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.search,
+                        size: 18,
+                        color: kWebHeaderColor,
+                      ),
+                    ),
+                  )
+                : const SizedBox()
           ],
         ),
         _image_container(econtroller),

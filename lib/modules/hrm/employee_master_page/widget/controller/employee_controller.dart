@@ -9,17 +9,26 @@ import 'package:web_2/component/awesom_dialog/awesome_dialog.dart';
 import 'package:web_2/component/settings/const_string.dart';
 
 import 'package:web_2/component/settings/functions.dart';
+import 'package:web_2/component/widget/custom_awesomeDialog.dart';
+import 'package:web_2/component/widget/custom_bysy_loader.dart';
+import 'package:web_2/component/widget/custom_search_box.dart';
+import 'package:web_2/component/widget/custom_widget_list.dart';
 
 import 'package:web_2/data/data_api.dart';
 import 'package:web_2/model/model_status.dart';
 
 import 'package:web_2/model/model_user.dart';
+import 'package:web_2/modules/admin/module_page/form_page.dart';
 import 'package:web_2/modules/hrm/department_setup/model/model_department.dart';
 import 'package:web_2/modules/hrm/department_setup/model/model_section_unit.dart';
 import 'package:web_2/modules/hrm/employee_master_page/model/model_emp_load_master_table.dart';
 import '../../../../../component/settings/config.dart';
 
 class EmployeeController extends GetxController {
+  final BuildContext context;
+  late CustomBusyLoader loader;
+  late CustomAwesomeDialog dialog;
+
   late data_api2 api;
   final Rx<File> imageFile = File('').obs;
   var isImageUpdate = false.obs;
@@ -33,8 +42,6 @@ class EmployeeController extends GetxController {
   var uid = ''.obs;
   //var user=ModelUser().obs;
   var user = ModelUser().obs;
-
-  late BuildContext context;
 
   final TextEditingController txt_emp_id = TextEditingController();
   final FocusNode f_emp_id = FocusNode();
@@ -69,6 +76,8 @@ class EmployeeController extends GetxController {
 
   var department_list = <ModelDepartment>[].obs;
   var section_list = <ModelSectionUnit>[].obs;
+
+  EmployeeController({required this.context});
 
   getSection() async {
     try {
@@ -111,15 +120,53 @@ class EmployeeController extends GetxController {
 
   Future<void> ImageUpload() async {
     if (imageFile.value.path == '') {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          'No new Image selected for upload', () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "No new Image selected for upload"
+        ..show();
+      // customAwesamDialodOk(context, DialogType.warning, "Warning!",
+      //     'No new Image selected for upload', () {});
+      return;
+    }
+    if (uid.value == '') {
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Employee edit mode required"
+        ..show();
       return;
     }
     var img = await imageFileToBase64(imageFile.value.path);
+    loader.show();
     var x = await api.createLead([
       {"path": "img", "img": img}
     ], "save_image");
-    print(x);
+
+    ModelStatus st = x.map((e) => ModelStatus.fromJson(e)).first;
+    if (st == null || st.id != "1") {
+      dialog
+        ..dialogType = DialogType.error
+        ..message = "Faillure to upload image!"
+        ..show();
+      loader.close();
+      return;
+    }
+    api.createLead([
+      {
+        "tag": "39",
+        "id": uid.value,
+        "path": st.msg,
+      }
+    ]).then((value) {
+      getStatusWithDialog(value, dialog).then((value) {
+        loader.close();
+      });
+    });
+
+    //print(x);
+  }
+
+  void empSearch() {
+    if (txt_emp_name.text.length == 10) {}
   }
 
   Undo() {
@@ -183,75 +230,117 @@ class EmployeeController extends GetxController {
 
   SaveData() async {
     if (cmb_prefix.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select prefix", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select prefix"
+        ..show();
+
       return;
     }
 
     if (txt_emp_name.text.isEmpty) {
-      customAwesamDialodOk(
-          context, DialogType.warning, "Warning!", "Please enter name", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please enter name"
+        ..show();
       return;
     }
 
     if (txt_emp_dob.text.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please enter date of birth", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please enter date of birth"
+        ..show();
+
       return;
     }
     if (cmb_nationality.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select nationality", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select nationality"
+        ..show();
+
       return;
     }
     if (txt_emp_father.text.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please enter father's name", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please enter father's name"
+        ..show();
+
       return;
     }
     if (txt_emp_mother.text.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please enter mother's name", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please enter mother's name"
+        ..show();
+
       return;
     }
     if (cmb_gender.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select gender", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select gender"
+        ..show();
+
       return;
     }
     if (cmb_religion.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select religion", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select religion"
+        ..show();
+
       return;
     }
+
     if (cmb_maritalstatus.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select marital status", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select marital status"
+        ..show();
+
       return;
     }
     if (cmb_bloodgroup.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select blood group", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select blood group"
+        ..show();
+
       return;
     }
     if (cmb_identitytype.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select identity type", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select identity type"
+        ..show();
+
       return;
     }
     if (txt_emp_identityname.text.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please enter identity number", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please enter identity number"
+        ..show();
+
       return;
     }
     if (cmb_designation.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select designation", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select designation"
+        ..show();
+
       return;
     }
     if (cmb_grade.isEmpty) {
-      customAwesamDialodOk(context, DialogType.warning, "Warning!",
-          "Please select grade", () {});
+      dialog
+        ..dialogType = DialogType.warning
+        ..message = "Please select grade"
+        ..show();
+
       return;
     }
     if (cmb_department_category.isEmpty) {
@@ -284,7 +373,8 @@ class EmployeeController extends GetxController {
           "Please enter date of join", () {});
       return;
     }
-    customBusyDialog(context);
+    // customBusyDialog(context);
+    loader.show();
     String img_path = '';
     if (isImageUpdate.value) {
       if (imageFile.value.path != '') {
@@ -311,25 +401,8 @@ class EmployeeController extends GetxController {
     <jstatus>${cmb_jobstatus.value}</jstatus><doj>${txt_emp_doj.text}</doj><dcat>${cmb_department_category.value}</dcat>
     <note>${txt_emp_note.text}</note><img>${img_path.toString()}</img>
     </a></r>''';
-    //print(s);
 
     try {
-      // print(user.cid);
-
-// @cid int,
-// @entry_by nvarchar(10),
-// @name nvarchar(150),
-// @fname nvarchar(150),
-// @mname nvarchar(150),
-// @sname nvarchar(150),
-// @ino nvarchar(25),
-// @note nvarchar(250),
-// @xml text
-
-      // CustomModalBusyLoader();
-      // isLoading.value = true;
-      // ignore: use_build_context_synchronously
-
       var x = await api.createLead([
         {
           "tag": "14",
@@ -344,31 +417,182 @@ class EmployeeController extends GetxController {
           "xml": s
         }
       ]);
+      loader.close();
       // Get.back();
       //print(x);
       // ignore: use_build_context_synchronously
       //isLoading.value = false;
       // ignore: use_build_context_synchronously
-      Navigator.pop(context);
+      // Navigator.pop(context);
       // ignore: use_build_context_synchronously
+      //print(x);
       bool b = GetStatusMessage(context, x);
       if (b) {
         // Undo();
 
         isDisableID.value = false;
-        txt_emp_id.text = '';
+        txt_emp_id.text =
+            x.map((e) => ModelStatus.fromJson(e)).first.extra.toString();
         uid.value = x.map((e) => ModelStatus.fromJson(e)).first.id.toString();
       }
     } catch (e) {
+      loader.close();
       //isLoading.value = true;
       //Get.back();
       //errorMessage(e.toString());
       // ignore: use_build_context_synchronously
-      Navigator.pop(context);
+      //Navigator.pop(context);
       // ignore: use_build_context_synchronously
       customAwesamDialodOk(
           context, DialogType.error, "Error!", e.toString(), () {});
     }
+  }
+
+  void advabceSearch() {
+// showCupertinoDialog(
+//     context: context,
+//     builder: (BuildContext context1) {
+//       return CupertinoAlertDialog(
+//         title: const Text("Advance Employee Search"),
+//         content: LayoutBuilder(
+//             builder: (context1, constraints) {
+//               return Padding(
+//                 padding: const EdgeInsets.symmetric(horizontal: 8),
+//                 child: Container(
+//                   height: constraints.maxHeight*.8,
+//                   width: constraints.maxWidth>1350?1200:constraints.maxWidth,
+//                   color: Colors.black,
+//                   child: const Padding(
+//                     padding: EdgeInsets.all(12.0),
+//                     child: CupertinoActivityIndicator(
+//                       color: Colors.white,
+//                     ),
+//                   ),
+//                 ),
+//               );
+//             }
+//           ),
+//         actions: [
+//           CupertinoDialogAction(
+//             child: const Text( 'Close'),
+//             onPressed: () {
+//               Navigator.of(context).pop(); // Close the dialog
+
+//             },
+//           ),
+//           // CupertinoDialogAction(
+//           //   isDefaultAction: true, // Emphasize the primary action
+//           //   child: Text('Yes'),
+//           //   onPressed: () {
+//           //     Navigator.of(context).pop(); // Close the dialog
+
+//           //   },
+//           // ),
+//         ],
+//       );
+//     },
+//   );
+
+    showDialog<void>(
+      useSafeArea :false,
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.4),
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Container(
+              color: Colors.transparent,
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                       // borderRadius: BorderRadiusDirectional.circular(50)
+                      ),
+                      height: constraints.maxHeight * .85,
+                      width: constraints.maxWidth > 1350
+                          ? 1200
+                          : constraints.maxWidth,
+                      // color: Colors.grey.shade200,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Container(
+                        
+                          decoration: CustomCaptionDecoration(0.5,Colors.black),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomCaptionForContainer("Search Employee"),
+                              height(8),
+                              Expanded(
+                                child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              child: CustomSearchBox(
+                                                  caption: "Employee Search",
+                                                  controller: TextEditingController(),
+                                                  onChange: (v) {})),
+                                        ],
+                                      ),
+                                      Expanded(
+                                        child: ListView(
+                                          children: [
+                                            for(var i=0;i<100;i++)
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 2),
+                                              child: Container(height: 50,color: Colors.amber,),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                      right: 5,
+                      top: 3,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius:
+                                      BorderRadiusDirectional.circular(50)),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 16,
+                              )),
+                        ),
+                      )),
+                ],
+              ),
+            );
+          }),
+        );
+      },
+    );
   }
 
   setEnableDisableID() {
@@ -377,7 +601,9 @@ class EmployeeController extends GetxController {
 
   @override
   void onInit() async {
-    print("init call");
+    // print("init call");
+    loader = CustomBusyLoader(context: context);
+    dialog = CustomAwesomeDialog(context: context);
     isLoading(true);
     api = data_api2();
     try {

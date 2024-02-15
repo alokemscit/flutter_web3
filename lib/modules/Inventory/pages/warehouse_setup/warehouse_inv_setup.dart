@@ -121,8 +121,7 @@ _warehouseEnryPart(WareHouseSetupController controller) => Container(
               width: 90),
           width(),
           roundedButton(() async {
-            // print("object");
-            // controller.saveGroup();
+            controller.saveWarehouse();
             //await controller.saveUpdateCategory();
           },
               controller.editWarehouseID.value == ''
@@ -147,14 +146,12 @@ _warehouseTablePart(WareHouseSetupController controller) => Expanded(
               Expanded(
                   flex: 5,
                   child: CustomSearchBox(
-                    //height: 27,
-                       borderRadious: 4,
+                      //height: 27,
+                      borderRadious: 4,
                       caption: "Warehouse search",
                       controller: TextEditingController(),
                       onChange: (v) {})),
-              const Expanded(
-                flex: 5,
-                child: SizedBox())
+              const Expanded(flex: 5, child: SizedBox())
             ],
           ),
           height(4),
@@ -166,19 +163,70 @@ _warehouseTablePart(WareHouseSetupController controller) => Expanded(
                 0: FlexColumnWidth(150),
                 1: FlexColumnWidth(60),
                 2: FlexColumnWidth(80),
-                3: FlexColumnWidth(40),
+                3: FlexColumnWidth(80),
+                4: FlexColumnWidth(40),
               },
               children: [
-               // for (var i = 0; i < 100;i++)
+                // for (var i = 0; i < 100;i++)
+                TableRow(
+                    decoration: CustomTableHeaderRowDecoration(),
+                    children: [
+                      CustomTableCell("Warehouse Name"),
+                      CustomTableCell("Is Central"),
+                      CustomTableCell("Store Type"),
+                      CustomTableCell("Status"),
+                      Center(
+                        child: CustomTableCell("Edit"),
+                      )
+                    ]),
+                for (var i = 0; i < controller.warehouseList_temp.length; i++)
                   TableRow(
-                      decoration: CustomTableHeaderRowDecoration(),
+                      decoration:  BoxDecoration(color:
+                      controller.editWarehouseID.value==controller.warehouseList_temp[i].id?Colors.amber.withOpacity(0.2): Colors.white),
                       children: [
-                        CustomTableCell("Warehouse Name"),
-                        CustomTableCell("Is Central"),
-                        CustomTableCell("Store Type"),
-                        Center(
-                          child: CustomTableCell("Edit"),
-                        )
+                        CustomTableCell(controller.warehouseList_temp[i].name!),
+                        CustomTableCell(
+                            controller.warehouseList_temp[i].isCentral == "0"
+                                ? "No"
+                                : "Yes"),
+                        CustomTableCell(
+                            controller.warehouseList_temp[i].storeTypeName!),
+                        CustomTableCell(
+                            controller.warehouseList_temp[i].status == "1"
+                                ? "Active"
+                                : "Inactive"),
+                        TableCell(
+                            verticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                            child: InkWell(
+                              onTap: () {
+                                controller.editWarehouseID.value =
+                                    controller.warehouseList_temp[i].id!;
+                                controller.isCentralStore.value = controller
+                                            .warehouseList_temp[i].isCentral ==
+                                        "1"
+                                    ? true
+                                    : false;
+                                controller.cmb_StoteTypeID.value = controller
+                                            .warehouseList_temp[i].isCentral ==
+                                        "1"
+                                    ? controller
+                                        .warehouseList_temp[i].storeTypeId!
+                                    : '';
+                                controller.txt_warehouse_name.text =
+                                    controller.warehouseList_temp[i].name!;
+                                controller.cmb_SatusID.value =
+                                    controller.warehouseList_temp[i].status!;
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.all(4.0),
+                                child: Icon(
+                                  Icons.edit,
+                                  color: kWebHeaderColor,
+                                  size: 12,
+                                ),
+                              ),
+                            ))
                       ])
               ],
             )),
