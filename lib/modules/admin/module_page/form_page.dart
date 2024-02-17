@@ -472,8 +472,11 @@ Future<ModelStatus> getStatusWithDialog(
       .first;
 
   dt = DialogType.success;
-  if (list.status != "1") {
+  if (list.status == "2") {
     dt = DialogType.warning;
+  }
+  if (list.status == "3") {
+    dt = DialogType.error;
   }
   msg = list.msg!;
   dialog

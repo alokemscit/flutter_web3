@@ -5,6 +5,8 @@ import 'package:web_2/modules/admin/module_page/model/module_model.dart';
 import 'package:web_2/modules/hrm/department_setup/department_setup_page.dart';
 import 'package:web_2/modules/hrm/employee_master_page/employee_master.dart';
 import 'package:web_2/modules/hrm/setup_attributes/attributes_setup_hr_page.dart';
+import 'package:web_2/modules/lab_diagnostic/Pages/lab_diagnostic_group_setup.dart';
+import 'package:web_2/modules/lab_diagnostic/Pages/lab_service_category_head_setup.dart';
 import 'package:web_2/modules/opd/doctor_setup/doctor_opd_setup_page.dart';
 import 'package:web_2/modules/ot/ot_page/doctor_category_setup.dart';
 import 'package:web_2/modules/ot/ot_page/operation_type.dart';
@@ -64,6 +66,10 @@ Widget getPage( String id) {
       return const InvAttributeSetup();
       case "107":
       return const WareHouseSetup();
+      case "111":
+      return const LabServiceCategoryHeadSetup();
+      case "110":
+      return const LabDiagnosticGroupSetup();
       case "":
       return const SizedBox(
         //child: Text("Under Construction!"),
