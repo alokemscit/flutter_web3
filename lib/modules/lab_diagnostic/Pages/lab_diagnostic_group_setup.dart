@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:web_2/component/settings/config.dart';
 import 'package:web_2/component/widget/custom_accordian/accordian_header.dart';
-import 'package:web_2/component/widget/custom_awesomeDialog.dart';
+
 import 'package:web_2/component/widget/custom_dropdown.dart';
 import 'package:web_2/component/widget/custom_search_box.dart';
 import 'package:web_2/component/widget/custom_textbox.dart';
@@ -21,30 +21,32 @@ class LabDiagnosticGroupSetup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     
-    
     LabDiagnosticGroupSetupController cnt =
-        Get.put(LabDiagnosticGroupSetupController(context: context));
+        Get.put(LabDiagnosticGroupSetupController());
+    cnt.context = context;
     return Scaffold(
       body: Obx(() => CustomCommonBody(cnt.isLoading.value, cnt.isError.value,
-          cnt.errorMessage.value, _mobile(cnt,context), _mobile(cnt,context), _desktop(cnt,context))),
+          cnt.errorMessage.value, _mobile(cnt), _mobile(cnt), _desktop(cnt))),
     );
   }
 }
 
-_mobile(LabDiagnosticGroupSetupController cnt,BuildContext context) => Padding(
+_mobile(
+  LabDiagnosticGroupSetupController cnt,
+) =>
+    Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
-        children: [Expanded(child: _groupMaster(cnt,context))],
+        children: [Expanded(child: _groupMaster(cnt))],
       ),
     );
-_desktop(LabDiagnosticGroupSetupController cnt,BuildContext context) => Padding(
-      padding: EdgeInsets.all(8),
+_desktop(LabDiagnosticGroupSetupController cnt) => Padding(
+      padding: const EdgeInsets.all(8),
       child: Row(
         children: [
           Expanded(
             flex: 6,
-            child: _groupMaster(cnt,context),
+            child: _groupMaster(cnt),
           ),
           const Expanded(
             flex: 3,
@@ -54,12 +56,12 @@ _desktop(LabDiagnosticGroupSetupController cnt,BuildContext context) => Padding(
       ),
     );
 
-_groupMaster(LabDiagnosticGroupSetupController cnt,BuildContext context) => CustomAccordionContainer(
+_groupMaster(LabDiagnosticGroupSetupController cnt) => CustomAccordionContainer(
         headerName: "Diagnostic Group Master",
         height: 0,
         isExpansion: false,
         children: [
-          _groupEntry(cnt,context),
+          _groupEntry(cnt),
           height(),
           _groupTablePart(cnt),
         ]);
@@ -96,51 +98,50 @@ _groupTablePart(LabDiagnosticGroupSetupController cnt) => Expanded(
                     children: [
                       CustomTableCell("Group ID"),
                       CustomTableCell("Department"),
-                      CustomTableCell("Group Gane"),
+                      CustomTableCell("Group Nane"),
                       CustomTableCell("Status"),
                       CustomTableCell("Action"),
                     ],
                   ),
-                  // for (var i = 0;
-                  //     i < controller.service_urgency_List.length;
-                  //     i++)
-                  //   TableRow(
-                  //       decoration: BoxDecoration(
-                  //           color: controller.editServiceCatID.value ==
-                  //                   controller.service_urgency_List[i].id
-                  //               ? Colors.amber.withOpacity(0.3)
-                  //               : Colors.white),
-                  //       children: [
-                  //         CustomTableCell(
-                  //             controller.service_urgency_List[i].name!),
-                  //         CustomTableCell(
-                  //             controller.service_urgency_List[i].status == '1'
-                  //                 ? "Active"
-                  //                 : "Inactive"),
-                  //         TableCell(
-                  //             verticalAlignment:
-                  //                 TableCellVerticalAlignment.middle,
-                  //             child: InkWell(
-                  //               onTap: () {
-                  //                 controller.editServiceCatID.value =
-                  //                     controller.service_urgency_List[i].id!;
+                  for (var i = 0; i < cnt.group_list_temp.length; i++)
+                    TableRow(
+                        decoration: BoxDecoration(
+                            color: cnt.editGroupID.value ==
+                                    cnt.group_list_temp[i].id
+                                ? Colors.amber.withOpacity(0.3)
+                                : Colors.white),
+                        children: [
+                          CustomTableCell(cnt.group_list_temp[i].id!),
+                          CustomTableCell(cnt.group_list_temp[i].deptName!),
+                          CustomTableCell(cnt.group_list_temp[i].name!),
+                          CustomTableCell(cnt.group_list_temp[i].status == '1'
+                              ? "Active"
+                              : "Inactive"),
+                          TableCell(
+                              verticalAlignment:
+                                  TableCellVerticalAlignment.middle,
+                              child: InkWell(
+                                onTap: () {
+                                  cnt.editGroupID.value =
+                                      cnt.group_list_temp[i].id!;
 
-                  //                 controller.txt_ServiceCatName.text =
-                  //                     controller.service_urgency_List[i].name!;
-                  //                 controller.cmb_service_cat_status.value =
-                  //                     controller
-                  //                         .service_urgency_List[i].status!;
-                  //               },
-                  //               child: const Padding(
-                  //                 padding: EdgeInsets.all(4.0),
-                  //                 child: Icon(
-                  //                   Icons.edit,
-                  //                   color: kWebHeaderColor,
-                  //                   size: 12,
-                  //                 ),
-                  //               ),
-                  //             )),
-                  //       ])
+                                  cnt.txt_group_name.text =
+                                      cnt.group_list_temp[i].name!;
+                                  cnt.cmb_departmentID.value =
+                                      cnt.group_list_temp[i].deptId!;
+                                  cnt.cmb_groupStatusID.value =
+                                      cnt.group_list_temp[i].status!;
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.all(4.0),
+                                  child: Icon(
+                                    Icons.edit,
+                                    color: kWebHeaderColor,
+                                    size: 12,
+                                  ),
+                                ),
+                              )),
+                        ])
                 ],
                 border: CustomTableBorder(),
               ),
@@ -150,7 +151,10 @@ _groupTablePart(LabDiagnosticGroupSetupController cnt) => Expanded(
       ),
     );
 
-_groupEntry(LabDiagnosticGroupSetupController cnt,BuildContext context) => Container(
+_groupEntry(
+  LabDiagnosticGroupSetupController cnt,
+) =>
+    Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: customBoxDecoration,
       child: Row(
@@ -190,7 +194,7 @@ _groupEntry(LabDiagnosticGroupSetupController cnt,BuildContext context) => Conta
               width: 90),
           width(),
           roundedButton(() async {
-            cnt.saveUpdateGroupSetup( context);
+            cnt.saveUpdateGroupSetup();
             // print("object");
             // controller.saveStoreType();
             //await controller.saveUpdateCategory();
@@ -199,6 +203,7 @@ _groupEntry(LabDiagnosticGroupSetupController cnt,BuildContext context) => Conta
           roundedButton(() {
             cnt.cmb_groupStatusID.value = "1";
             cnt.txt_group_name.text = '';
+            cnt.editGroupID.value = '';
             // controller.editServiceCatID.value = '';
             //controller.txt_ServiceCatName.text = '';
             //controller.cmb_service_cat_status.value = "1";

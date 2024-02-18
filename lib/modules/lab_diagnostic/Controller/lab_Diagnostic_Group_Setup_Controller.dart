@@ -12,10 +12,12 @@ import 'package:web_2/model/model_user.dart';
 import 'package:web_2/modules/admin/module_page/form_page.dart';
 import 'package:web_2/modules/hrm/department_setup/model/model_department.dart';
 import 'package:web_2/modules/hrm/department_setup/model/model_status_master.dart';
+import 'package:web_2/modules/lab_diagnostic/Model/model_test_group_master.dart';
+import 'package:web_2/modules/lab_diagnostic/Model/model_test_main.dart';
 
 class LabDiagnosticGroupSetupController extends GetxController {
-  LabDiagnosticGroupSetupController({required this.context});
-  final BuildContext context;
+  // LabDiagnosticGroupSetupController({required this.context});
+  late BuildContext context;
   late data_api2 api;
   late CustomAwesomeDialog dialog;
   late CustomBusyLoader loader;
@@ -33,11 +35,16 @@ class LabDiagnosticGroupSetupController extends GetxController {
   var department_list_all = <ModelDepartment>[].obs;
   var department_list_temp = <ModelDepartment>[].obs;
 
-  void saveUpdateGroupSetup(BuildContext context) async {
+  var group_list_all = <ModelTestGroupMaster>[].obs;
+  var group_list_temp = <ModelTestGroupMaster>[].obs;
+
+  
+
+  void saveUpdateGroupSetup() async {
     dialog = CustomAwesomeDialog(context: context);
-   // print("ok");
+    // print("ok");
     if (txt_group_name.text == '') {
-       dialog
+      dialog
         ..dialogType = DialogType.warning
         ..message = "Please enter valid group name!"
         ..show();
@@ -57,9 +64,9 @@ class LabDiagnosticGroupSetupController extends GetxController {
     }
 
     try {
-       loader = CustomBusyLoader(context: context);
+      loader = CustomBusyLoader(context: context);
       loader.show();
-//@cid ,@did,  @id ,@name ),@status
+   //@cid ,@did,  @id ,@name ),@status
 
       api
           .createLead([
@@ -75,8 +82,25 @@ class LabDiagnosticGroupSetupController extends GetxController {
           .then((value) => getStatusWithDialog(value, dialog))
           .then((value) {
             if (value.status == "1") {
+              if (editGroupID.value != '') {
+                group_list_all
+                    .removeWhere((element) => element.id == editGroupID.value);
+              }
+              group_list_all.add(ModelTestGroupMaster(
+                  deptId: cmb_departmentID.value,
+                  deptName: department_list_all
+                      .where((p0) => p0.id == cmb_departmentID.value)
+                      .first
+                      .name,
+                  id: value.id,
+                  name: txt_group_name.text,
+                  status: cmb_groupStatusID.value));
+              group_list_temp.clear();
+              group_list_temp.addAll(group_list_all);
+
               txt_group_name.text = '';
               cmb_groupStatusID.value = '1';
+              editGroupID.value = '';
             }
           });
 
@@ -101,8 +125,8 @@ class LabDiagnosticGroupSetupController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    dialog = CustomAwesomeDialog(context: context);
-    loader = CustomBusyLoader(context: context);
+    // dialog = CustomAwesomeDialog(context: context);
+
     api = data_api2();
     isLoading.value = true;
     try {
@@ -122,6 +146,15 @@ class LabDiagnosticGroupSetupController extends GetxController {
       department_list_all
           .addAll(x.map((e) => ModelDepartment.fromJson(e)).toList());
       department_list_temp.addAll(department_list_all);
+
+      x = await api.createLead([
+        {"tag": "44", "cid": user.value.cid}
+      ]);
+      group_list_all
+          .addAll(x.map((e) => ModelTestGroupMaster.fromJson(e)).toList());
+      group_list_temp.addAll(group_list_all);
+
+      
 
       isLoading.value = false;
     } catch (e) {
