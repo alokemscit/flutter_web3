@@ -131,7 +131,7 @@ class TreeExpandeWidget extends StatelessWidget {
                         .toList();
 
                     return ExpansionTile(
-                        initiallyExpanded: true,
+                        // initiallyExpanded: true,
                         trailing: null, // const SizedBox(width: 0,),
                         tilePadding: EdgeInsets.zero,
                         leading: const Icon(Icons.menu),
@@ -456,12 +456,13 @@ Future<ModelStatus> getStatusWithDialog(
   List<dynamic> jsonData,
   CustomAwesomeDialog dialog,
 ) async {
+  //print(jsonData);
   if (jsonData.isEmpty) {
     dialog
       ..dialogType = DialogType.error
       ..message = "Server error!"
       ..show();
-    return ModelStatus(id: "", msg: "Server error",status: "4");
+    return ModelStatus(id: "", msg: "Server error", status: "4");
   }
   DialogType dt;
   String msg = '';

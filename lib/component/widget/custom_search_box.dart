@@ -41,7 +41,7 @@ class CustomSearchBox extends StatelessWidget {
       {super.key,
       required this.caption,
       this.width = 65,
-      this.maxlength = 6,
+      this.maxlength = 100,
       required this.controller,
       this.textInputType = TextInputType.text,
       this.maxLine = 1,
